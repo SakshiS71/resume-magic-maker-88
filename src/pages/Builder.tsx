@@ -15,14 +15,15 @@ const Builder = () => {
   const handleDownload = async () => {
     const element = document.getElementById('resume-preview');
     if (!element) return;
-    const html2pdf = (await import('html2pdf.js')).default;
-    html2pdf().set({
-      margin: 0,
-      filename: 'resume.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    }).from(element).save();
+    const html2canvas = (await import('html2canvas')).default;
+    const { jsPDF } = await import('jspdf');
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('resume.pdf');
   };
 
   const handlePrint = () => window.print();
