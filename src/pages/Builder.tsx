@@ -101,7 +101,7 @@ const Builder = () => {
           <ResumeForm />
         </div>
         {/* Preview */}
-        <div className={`w-full overflow-y-auto bg-secondary p-6 lg:w-1/2 lg:block ${showPreview ? '' : 'hidden lg:block'}`}>
+        <div id="resume-preview-container" className={`w-full overflow-y-auto bg-secondary p-6 lg:w-1/2 lg:block ${showPreview ? '' : 'hidden lg:block'}`}>
           <div className="mx-auto max-w-[210mm]">
             <ResumePreview />
           </div>
