@@ -13,17 +13,36 @@ const Builder = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   const handleDownload = async () => {
+    const previewContainer = document.getElementById('resume-preview-container');
     const element = document.getElementById('resume-preview');
-    if (!element) return;
+    if (!element || !previewContainer) return;
+
+    // Ensure the preview is visible for capture (it may be hidden on mobile)
+    const wasHidden = previewContainer.classList.contains('hidden');
+    if (wasHidden) {
+      previewContainer.style.position = 'absolute';
+      previewContainer.style.left = '-9999px';
+      previewContainer.style.display = 'block';
+      previewContainer.classList.remove('hidden');
+    }
+
     const html2canvas = (await import('html2canvas')).default;
     const { jsPDF } = await import('jspdf');
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save('resume.pdf');
+
+    // Restore hidden state
+    if (wasHidden) {
+      previewContainer.style.position = '';
+      previewContainer.style.left = '';
+      previewContainer.style.display = '';
+      previewContainer.classList.add('hidden');
+    }
   };
 
   const handlePrint = () => window.print();
@@ -82,7 +101,7 @@ const Builder = () => {
           <ResumeForm />
         </div>
         {/* Preview */}
-        <div className={`w-full overflow-y-auto bg-secondary p-6 lg:w-1/2 lg:block ${showPreview ? '' : 'hidden lg:block'}`}>
+        <div id="resume-preview-container" className={`w-full overflow-y-auto bg-secondary p-6 lg:w-1/2 lg:block ${showPreview ? '' : 'hidden lg:block'}`}>
           <div className="mx-auto max-w-[210mm]">
             <ResumePreview />
           </div>
